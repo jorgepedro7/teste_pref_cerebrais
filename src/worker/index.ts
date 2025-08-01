@@ -1,6 +1,13 @@
+interface Env {
+  DB: {
+    prepare: (...args: any[]) => any;
+  };
+}
+
 import { Hono } from "hono";
 import { zValidator } from '@hono/zod-validator';
 import { AssessmentSubmissionSchema } from '@/shared/types';
+import fetch from 'node-fetch';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -68,10 +75,10 @@ app.post('/api/assessment',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(webhookData)
-        }).catch(error => {
+        }).catch((error: unknown) => {
           console.error('Webhook error:', error);
         });
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Failed to send webhook:', error);
       }
 
@@ -87,7 +94,7 @@ app.post('/api/assessment',
         dominantType,
         createdAt: new Date().toISOString()
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error saving assessment:', error);
       return c.json({ error: 'Failed to process assessment' }, 500);
     }
@@ -133,7 +140,7 @@ app.get('/api/assessment/:id', async (c) => {
       dominantType,
       createdAt: result.created_at
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error fetching assessment:', error);
     return c.json({ error: 'Failed to fetch assessment' }, 500);
   }
