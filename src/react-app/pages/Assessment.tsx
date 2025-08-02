@@ -50,7 +50,7 @@ export default function Assessment() {
         answer: answers[q.id] as 'I' | 'C' | 'O' | 'A'
       }));
 
-      const response = await fetch('/api/assessment', {
+      const response = await fetch('https://n8nwebhook.projetosjl.com.br/webhook/back-forms-respostas', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
