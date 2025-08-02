@@ -6,7 +6,7 @@ import { mochaPlugins } from "@getmocha/vite-plugins";
 
 export default defineConfig({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  base: "/teste_pref_cerebrais/",
+  base: "/",
   plugins: [...mochaPlugins(process.env as any), react(), cloudflare()],
   server: {
     allowedHosts: true,
