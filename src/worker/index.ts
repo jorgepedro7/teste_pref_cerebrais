@@ -18,40 +18,19 @@ app.post('/api/assessment',
     try {
       const { userName, userAge, userCompany, answers } = c.req.valid('json');
       
-      // Calculate scores for each type
+      // Calcular scores
       const scores = { I: 0, C: 0, O: 0, A: 0 };
-      
       answers.forEach(answer => {
         scores[answer.answer]++;
       });
 
-      // Determine dominant type
+      // Determinar tipo dominante
       const dominantType = Object.entries(scores).reduce((a, b) => 
         scores[a[0] as keyof typeof scores] > scores[b[0] as keyof typeof scores] ? a : b
       )[0];
 
-      // Save to database
-      const result = await c.env.DB.prepare(`
-        INSERT INTO assessments (user_name, user_age, user_company, answers, i_score, c_score, o_score, a_score, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
-      `).bind(
-        userName,
-        userAge,
-        userCompany,
-        JSON.stringify(answers),
-        scores.I,
-        scores.C,
-        scores.O,
-        scores.A
-      ).run();
-
-      if (!result.success) {
-        throw new Error('Failed to save assessment');
-      }
-
-      // Send data to webhook
+      // Montar dados para o webhook
       const webhookData = {
-        id: result.meta.last_row_id,
         userName,
         userAge,
         userCompany,
@@ -67,36 +46,26 @@ app.post('/api/assessment',
         testType: 'Teste de Preferência Cerebral'
       };
 
-      // Send to webhook (don't wait for response to avoid delays)
-      try {
-        fetch('https://n8nwebhook.projetosjl.com.br/webhook/back-forms-respostas', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(webhookData)
-        }).catch((error: unknown) => {
-          console.error('Webhook error:', error);
-        });
-      } catch (error: unknown) {
-        console.error('Failed to send webhook:', error);
+      // Enviar para o webhook
+      const response = await fetch('https://n8nwebhook.projetosjl.com.br/webhook/back-forms-respostas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao enviar para o webhook');
       }
 
       return c.json({
-        id: result.meta.last_row_id,
-        userName,
-        userAge,
-        userCompany,
-        iScore: scores.I,
-        cScore: scores.C,
-        oScore: scores.O,
-        aScore: scores.A,
-        dominantType,
-        createdAt: new Date().toISOString()
+        success: true,
+        webhookData
       });
     } catch (error: unknown) {
-      console.error('Error saving assessment:', error);
-      return c.json({ error: 'Failed to process assessment' }, 500);
+      console.error('Error sending assessment:', error);
+      return c.json({ error: 'Failed to send assessment' }, 500);
     }
   }
 );
