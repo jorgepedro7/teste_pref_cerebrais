@@ -1,19 +1,11 @@
-import { useLocation, Link } from 'react-router';
+import { useLocation, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-
-type AnswerType = 'I' | 'C' | 'O' | 'A';
-
-interface AssessmentAnswer {
-  answer: AnswerType;
-  // Adicione outros campos se necessário
-}
 
 export default function Result() {
   const location = useLocation();
-  const { userName, userAge, userCompany, assessmentAnswers } = location.state || {};
+  const { userName, userAge, userCompany, assessmentAnswers, scores, dominantType } = location.state || {};
 
-  // Verifica se assessmentAnswers existe e tem dados
-  if (!assessmentAnswers || !Array.isArray(assessmentAnswers) || assessmentAnswers.length === 0) {
+  if (!assessmentAnswers || !scores || !dominantType) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md w-full">
@@ -35,16 +27,6 @@ export default function Result() {
       </div>
     );
   }
-
-  const scores: Record<AnswerType, number> = { I: 0, C: 0, O: 0, A: 0 };
-  assessmentAnswers.forEach((a: AssessmentAnswer) => {
-    // Garante que a resposta é válida
-    if (scores[a.answer] !== undefined) {
-      scores[a.answer]++;
-    }
-  });
-  const dominantType = (Object.entries(scores) as [AnswerType, number][])
-    .reduce((a, b) => a[1] > b[1] ? a : b)[0];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">

@@ -80,9 +80,9 @@ export default function Assessment() {
             userName,
             userAge,
             userCompany,
+            assessmentAnswers,
             scores,
-            dominantType,
-            answers: assessmentAnswers
+            dominantType
           }
         });
       } else {
