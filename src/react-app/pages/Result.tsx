@@ -42,8 +42,7 @@ export default function Result() {
     );
   }
 
-  // Cálculo do total para porcentagem
-  const total = Object.values(scores).reduce((acc: number, val: unknown) => acc + (val as number), 0);
+  const total = Object.values(scores).reduce((acc, val) => acc + val, 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
@@ -76,12 +75,12 @@ export default function Result() {
               <div key={type} className="text-left">
                 <div className="flex justify-between mb-1">
                   <span className="font-semibold">{type}</span>
-                  <span>{value as number} ({(((value as number) / total) * 100).toFixed(1)}%)</span>
+                  <span>{value} ({((value / total) * 100).toFixed(1)}%)</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-4">
                   <div
                     className={`${typeColors[type]} h-4 rounded-full transition-all`}
-                    style={{ width: `${((value as number) / total) * 100}%` }}
+                    style={{ width: `${(value / total) * 100}%` }}
                   />
                 </div>
                 <div className="text-xs text-gray-500 mt-1">{typeDescriptions[type]}</div>
