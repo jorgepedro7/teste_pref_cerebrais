@@ -64,8 +64,27 @@ export default function Assessment() {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        navigate(`/result/${result.id}`);
+
+        // Cálculo dos scores
+        const scores = { I: 0, C: 0, O: 0, A: 0 };
+        assessmentAnswers.forEach(a => {
+          scores[a.answer]++;
+        });
+        const dominantType = Object.entries(scores).reduce((a, b) =>
+          scores[a[0] as 'I' | 'C' | 'O' | 'A'] > scores[b[0] as 'I' | 'C' | 'O' | 'A'] ? a : b
+        )[0];
+
+        // Navegar para a página de resultado com os dados
+        navigate('/result', {
+          state: {
+            userName,
+            userAge,
+            userCompany,
+            scores,
+            dominantType,
+            answers: assessmentAnswers
+          }
+        });
       } else {
         throw new Error('Falha ao enviar o teste');
       }
